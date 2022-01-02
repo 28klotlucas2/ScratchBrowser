@@ -1,0 +1,52 @@
+<html>
+
+<head>
+	<link rel="stylesheet" href="https://scratch.mit.edu/common.css" </link>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		.row {
+			display: flex;
+		}
+
+		.column {
+			flex: 33.33%;
+			padding: 5px;
+		}
+
+		html,
+		body {
+			background-color: white;
+
+		}
+	</style>
+
+</head>
+<h4 style="font-size: 20px;">Most loved</h4>
+<div class="row">
+	{% for i in mostloved %}
+<div class="column">
+<p class="thumbnail-title">{{i["title"]}}<p>
+<a href="https://scratchbrowser.28klotlucas.repl.co/projects/{{i["id"]}}">
+<img src="{{i["thumbnail"]}}" alt="{{i["title"]}}" style="width: 262px;">
+</a>
+</div>
+{% endfor %}
+</div>
+
+<h4 style="font-size: 20px;">Most remixed</h4>
+<div class="row">
+{% for i in mostremixed %}
+<div class="column">
+<p class="thumbnail-title">{{i["title"]}}<p>
+<a href="https://scratchbrowser.28klotlucas.repl.co/projects/{{i["id"]}}">
+<img src="{{i["thumbnail"]}}" alt="{{i["title"]}}" style="width: 262px;">
+</a>
+</div>
+{% endfor %}
+</div>
+</body>
+
+</html>

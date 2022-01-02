@@ -1,0 +1,69 @@
+<head>
+	<title>{{project["title"]}}</title>
+	<link rel="stylesheet" href="https://scratch.mit.edu/common.css" </link>
+	<style>
+		.button {
+			border: none;
+			color: white;
+			padding: 15px 32px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin: 4px 2px;
+			cursor: pointer;
+		}
+
+		.kdjjdsnjds {
+			border: 1px solid gray;
+			padding: 8px;
+		}
+
+		h1 {
+			text-align: center;
+			text-transform: uppercase;
+			color: #4CAF50;
+		}
+
+		p {
+			text-indent: 50px;
+			text-align: justify;
+			letter-spacing: 3px;
+		}
+
+		a {
+			text-decoration: none;
+			color: #008CBA;
+		}
+
+		html,
+		body {
+			background-color: white;
+		}
+	</style>
+</head>
+
+<body>
+	<h1 style="text-align: center;">{{project["title"]}}</h1>
+	<div class="kdjjdsnjds">
+		<div>
+			<a href="https://scratch.mit.edu/projects/{{projid}}" target="_blank" class="button">View on Scratch
+			</a>
+			<a href="https://scratchbrowser.28klotlucas.repl.co/projects/{{projid}}/play" target="_blank" class="button">Play Project
+			</a>
+			<a href="https://sheeptester.github.io/htmlifier/?title={{project["title"]}}&username=ScratchBrowser+User&cloud-ws=wss%3A%2F%2Fclouddata.turbowarp.org&id={{projid}}&start-stop-controls=on&cloud-provider=ws#htmlify"
+			 target="_blank" class="button">Download Project
+			</a>
+		</div>
+    <p>Views:{{stats["views"]}} Loves:{{stats["loves"]}} Favorites:{{stats["favorites"]}} Remixes:{{stats["remixes"]}} Score:{{stats["score"]}} <small><small><small><small><small><small>This does not measure game quality. This is based on popular opinion.</small></small></small></small></small></small></p>
+		<h2 style="text-align: center;">About:</h2>
+		<p>{{project["description"]}}</p>
+		<h2 style="text-align: center;">How to use:</h2>
+		<p>{{project["instructions"]}}</p>
+	</div>
+	<h2 style="text-align: center;">Tags:</h2>
+	{% for i in project["tags"] %}
+	<a href="https://scratch.mit.edu/search/projects?q={{i}}" target="_blank" class="button">#{{i}}
+	</a>
+	{% endfor %}
+</body>
