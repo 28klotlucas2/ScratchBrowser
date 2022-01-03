@@ -14,6 +14,9 @@ app.config["SECRET_KEY"] = os.environ["secretpassword"]
 
 @app.before_request
 def make_session_permanent():
+    if "fcb272c6-079c-4ce5-aa9c-7db84e71071b.id.repl.co" in request.url:
+      return redirect("https://scratchbrowser.28klotlucas.repl.co/")
+    print(request.url)
     session.permanent = True
 
 
@@ -39,7 +42,18 @@ def hello_world():
 
 @app.route("/projects/search/")
 def profilesearchmenu():
-    return "eee"
+    if request.args.get("q"):
+        results = json.loads(
+            sendreq("https://api.scratch.mit.edu/search/projects?q=" +
+                    request.args.get("q").replace(" ", "%20")))
+    else:
+      return render_template("searchpage.html")
+    results2 = []
+
+    for i in results:
+        results2.append(i)
+
+    return render_template("searchd.html", results=results2)
 
 
 @app.route("/followers/<name>/")
@@ -61,18 +75,7 @@ def followercount(name):
 
 @app.route("/search/")
 def result():
-    if request.args.get("q"):
-        results = json.loads(
-            sendreq("https://api.scratch.mit.edu/search/projects?q=" +
-                    request.args.get("q").replace(" ", "%20")))
-    else:
-      return render_template("searchpage.html")
-    results2 = []
-
-    for i in results:
-        results2.append(i)
-
-    return render_template("searchd.html", results=results2)
+    return redirect("/projects/search/")
 
 
 @app.route("/projects/")
@@ -106,7 +109,7 @@ def featured():
                            mostloved=mostloved)
 
 
-@app.route("/projects/<projid>")
+@app.route("/projects/<projid>/")
 def projectinfo(projid):
     try:
         sendreq("https://api.scratch.mit.edu/projects/" + projid + "/")
@@ -163,6 +166,11 @@ def check_under_maintenance():
     if maintinance and not request.args.get("bypass") == os.environ[
             "secretpassword"]:  # Check if a "maintenance" file exists (whatever it is empty or not)
         abort(503)
+
+
+@app.route("/google08ced3cd04c4329e.html")
+def e():
+  return render_template("google08ced3cd04c4329e.html")
 
 
 @app.errorhandler(503)
