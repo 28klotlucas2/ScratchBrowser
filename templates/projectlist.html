@@ -24,28 +24,55 @@
 	</style>
 
 </head>
-<h4 style="font-size: 20px;">Most loved</h4>
+<a href="https://scratchbrowser.28klotlucas.repl.co/" style="font-size:20px">Home<br><br></a>
+<h3>Most loved:</h3>
 <div class="row">
 	{% for i in mostloved %}
 <div class="column">
 <p class="thumbnail-title">{{i["title"]}}<p>
 <a href="https://scratchbrowser.28klotlucas.repl.co/projects/{{i["id"]}}">
-<img src="{{i["thumbnail"]}}" alt="{{i["title"]}}" style="width: 262px;">
+<img src="{{i["thumbnail"]}}" alt="{{i["title"]}}" width="225px" height="165px">
 </a>
 </div>
 {% endfor %}
 </div>
 
-<h4 style="font-size: 20px;">Most remixed</h4>
+<h3>Most remixed:</h3>
 <div class="row">
 {% for i in mostremixed %}
 <div class="column">
 <p class="thumbnail-title">{{i["title"]}}<p>
 <a href="https://scratchbrowser.28klotlucas.repl.co/projects/{{i["id"]}}">
-<img src="{{i["thumbnail"]}}" alt="{{i["title"]}}" style="width: 262px;">
+<img src="{{i["thumbnail"]}}" alt="{{i["title"]}}" width="225px" height="165px">
 </a>
 </div>
 {% endfor %}
+</div>
+
+<h3>My projects:</h3>
+<div class="row">
+{% for i in shamelessplug1 %}
+<div class="column">
+<p class="thumbnail-title">{{i["title"]}}<p>
+<a href="https://scratchbrowser.28klotlucas.repl.co/projects/{{i["id"]}}">
+<img src="{{i["thumbnail"]}}" alt="{{i["title"]}}" width="225px" height="165px">
+</a>
+</div>
+{% endfor %}
+</div>
+
+<h3>My friend's projects:</h3>
+<div class="row">
+{% for i in shamelessplug2 %}
+<div class="column">
+<p class="thumbnail-title">{{i["title"]}}<p>
+<a href="https://scratchbrowser.28klotlucas.repl.co/projects/{{i["id"]}}">
+<img src="{{i["thumbnail"]}}" alt="{{i["title"]}}" width="225px" height="165px">
+</a>
+</div>
+{% endfor %}
+</div>
+
 </div>
 </body>
 

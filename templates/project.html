@@ -1,10 +1,11 @@
 <head>
 	<title>{{project["title"]}}</title>
-	<link rel="stylesheet" href="https://scratch.mit.edu/common.css"</link>
-  <link rel="stylesheet" href="/static/a.css"</link>
+	<link rel="stylesheet" href="https://scratch.mit.edu/common.css" </link>
+	<link rel="stylesheet" href="/static/a.css" </link>
 </head>
 
 <body>
+	<a href="https://scratchbrowser.28klotlucas.repl.co/" style="font-size:20px">Home<br><br></a>
 	<h1>{{project["title"]}}</h1>
 	<h3>By: {{project["author"]["username"]}} {% if project["remix"]["parent"] %}
 		<a href="https://scratchbrowser.28klotlucas.repl.co/projects/{{project["remix"]["parent"]}}">Original<a>

@@ -38,11 +38,11 @@ def sendreq(url):
 
 @app.route('/')
 def hello_world():
-    return redirect("/projects/")
+    return render_template("home.html")
 
 
 @app.route("/projects/search/")
-def profilesearchmenu():
+def projectsearchmenu():
     if request.args.get("q"):
         if request.args.get("page"):
             results = json.loads(
@@ -63,12 +63,15 @@ def profilesearchmenu():
             results2.append(i)
 
     if num == 0:
-      return redirect("/projects/search?page=" + str(int(request.args.get("page")) - 1) + "&q=" + request.args.get("q"))
+        return redirect("/projects/search?page=" +
+                        str(int(request.args.get("page")) - 1) + "&q=" +
+                        request.args.get("q"))
 
     return render_template("searchd.html",
                            results=results2,
                            page=int(request.args.get("page")),
-                           search=True, q=request.args.get("q"))
+                           search=True,
+                           q=request.args.get("q"))
 
 
 @app.route("/projects/<projid>/remixes/")
@@ -90,7 +93,8 @@ def remixes(projid):
             results2.append(i)
 
     if num == 0:
-      return redirect("/projects/" + projid + "/remixes?page=" + str(int(request.args.get("page")) - 1))
+        return redirect("/projects/" + projid + "/remixes?page=" +
+                        str(int(request.args.get("page")) - 1))
 
     return render_template("searchd.html",
                            results=results2,
@@ -147,9 +151,35 @@ def featured():
         mostloved[num]["id"] = str(i["id"])
         print(i)
 
+    myprojects = json.loads(
+        sendreq("https://api.scratch.mit.edu/users/28klotlucas2/projects/"))
+    shamelessplug1 = []
+    num = -1
+
+    for i in myprojects:
+        num = num + 1
+        shamelessplug1.append({})
+        shamelessplug1[num]["thumbnail"] = i["images"]["200x200"]
+        shamelessplug1[num]["title"] = i["title"]
+        shamelessplug1[num]["id"] = str(i["id"])
+        print(i)
+
+    myprojects = json.loads(
+        sendreq("https://api.scratch.mit.edu/users/DarthZombot345/projects/"))
+    shamelessplug2 = []
+    num = -1
+
+    for i in myprojects:
+        num = num + 1
+        shamelessplug2.append({})
+        shamelessplug2[num]["thumbnail"] = i["images"]["200x200"]
+        shamelessplug2[num]["title"] = i["title"]
+        shamelessplug2[num]["id"] = str(i["id"])
+        print(i)
+
     return render_template("projectlist.html",
                            mostremixed=mostremixed,
-                           mostloved=mostloved)
+                           mostloved=mostloved, shamelessplug1=shamelessplug1, shamelessplug2=shamelessplug2)
 
 
 @app.route("/projects/<projid>/")
@@ -203,7 +233,7 @@ def projectinfo(projid):
 @app.route("/projects/<projid>/play/")
 def play(projid):
     return redirect("https://turbowarp.org/" + projid +
-                    "/embed?username=ScratchBrowser%20User")
+                    "/embed")
 
 
 @app.before_request
