@@ -22,7 +22,7 @@
 
 		}
 	</style>
-
+	<title>Project List | ScratchBrowser</title>
 </head>
 <a href="https://scratchbrowser.28klotlucas.repl.co/" style="font-size:20px">Home<br><br></a>
 <h3>Most loved:</h3>
@@ -40,6 +40,30 @@
 <h3>Most remixed:</h3>
 <div class="row">
 {% for i in mostremixed %}
+<div class="column">
+<p class="thumbnail-title">{{i["title"]}}<p>
+<a href="https://scratchbrowser.28klotlucas.repl.co/projects/{{i["id"]}}">
+<img src="{{i["thumbnail"]}}" alt="{{i["title"]}}" width="225px" height="165px">
+</a>
+</div>
+{% endfor %}
+</div>
+
+<h3>Fun games:</h3>
+<div class="row">
+{% for i in games %}
+<div class="column">
+<p class="thumbnail-title">{{i["title"]}}<p>
+<a href="https://scratchbrowser.28klotlucas.repl.co/projects/{{i["id"]}}">
+<img src="{{i["thumbnail"]}}" alt="{{i["title"]}}" width="225px" height="165px">
+</a>
+</div>
+{% endfor %}
+</div>
+
+<h3>Recent projects:</h3>
+<div class="row">
+{% for i in recent %}
 <div class="column">
 <p class="thumbnail-title">{{i["title"]}}<p>
 <a href="https://scratchbrowser.28klotlucas.repl.co/projects/{{i["id"]}}">

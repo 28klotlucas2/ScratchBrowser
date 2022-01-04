@@ -17,7 +17,6 @@ app.config["SECRET_KEY"] = os.environ["secretpassword"]
 def make_session_permanent():
     if "fcb272c6-079c-4ce5-aa9c-7db84e71071b.id.repl.co" in request.url:
         return redirect("https://scratchbrowser.28klotlucas.repl.co/")
-    print(request.url)
     session.permanent = True
 
 
@@ -149,7 +148,32 @@ def featured():
         mostloved[num]["thumbnail"] = i["thumbnail_url"]
         mostloved[num]["title"] = i["title"]
         mostloved[num]["id"] = str(i["id"])
-        print(i)
+
+    recent = json.loads(
+        sendreq("https://api.scratch.mit.edu/explore/projects?mode=recent"))
+    recent2 = []
+    num = -1
+
+    for i in recent:
+        num = num + 1
+        recent2.append({})
+        recent2[num]["thumbnail"] = i["images"]["200x200"]
+        recent2[num]["title"] = i["title"]
+        recent2[num]["id"] = str(i["id"])
+
+    games = json.loads(
+        sendreq(
+            "https://api.scratch.mit.edu/explore/projects?mode=trending&q=games"
+        ))
+    games2 = []
+    num = -1
+
+    for i in games:
+        num = num + 1
+        games2.append({})
+        games2[num]["thumbnail"] = i["images"]["200x200"]
+        games2[num]["title"] = i["title"]
+        games2[num]["id"] = str(i["id"])
 
     myprojects = json.loads(
         sendreq("https://api.scratch.mit.edu/users/28klotlucas2/projects/"))
@@ -162,7 +186,6 @@ def featured():
         shamelessplug1[num]["thumbnail"] = i["images"]["200x200"]
         shamelessplug1[num]["title"] = i["title"]
         shamelessplug1[num]["id"] = str(i["id"])
-        print(i)
 
     myprojects = json.loads(
         sendreq("https://api.scratch.mit.edu/users/DarthZombot345/projects/"))
@@ -175,11 +198,14 @@ def featured():
         shamelessplug2[num]["thumbnail"] = i["images"]["200x200"]
         shamelessplug2[num]["title"] = i["title"]
         shamelessplug2[num]["id"] = str(i["id"])
-        print(i)
 
     return render_template("projectlist.html",
                            mostremixed=mostremixed,
-                           mostloved=mostloved, shamelessplug1=shamelessplug1, shamelessplug2=shamelessplug2)
+                           mostloved=mostloved,
+                           shamelessplug1=shamelessplug1,
+                           shamelessplug2=shamelessplug2,
+                           recent=recent2,
+                           games=games2)
 
 
 @app.route("/projects/<projid>/")
@@ -219,8 +245,6 @@ def projectinfo(projid):
         if not i in response["tags"]:
             response["tags"].append(i)
 
-    print(response)
-    print(stats)
     if response["public"]:
         return render_template("project.html",
                                project=response,
@@ -232,8 +256,7 @@ def projectinfo(projid):
 
 @app.route("/projects/<projid>/play/")
 def play(projid):
-    return redirect("https://turbowarp.org/" + projid +
-                    "/embed")
+    return redirect("https://turbowarp.org/" + projid + "/embed")
 
 
 @app.before_request
@@ -246,6 +269,11 @@ def check_under_maintenance():
 @app.route("/google08ced3cd04c4329e.html")
 def e():
     return render_template("google08ced3cd04c4329e.html")
+
+
+@app.route("/projects/scratch.mit.edu/projects/<projid>/")
+def bookmarklet(projid):
+  return redirect("/projects/" + projid)
 
 
 @app.errorhandler(503)
