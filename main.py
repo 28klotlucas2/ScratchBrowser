@@ -234,7 +234,9 @@ def assets(projid):
     assets = []
 
     for i in response["targets"]:
+      costname = i["name"]
       for i in i["costumes"]:
+        i["name"] = costname + ": " + i["name"]
         assets.append(i)
     return render_template("assets.html", assets=assets)
 
