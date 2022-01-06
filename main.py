@@ -1,10 +1,11 @@
 from flask import Flask, render_template, abort, request, redirect, session
+import time
 import re
 import urllib.request
 import json
 import logging
 import os
-import math
+import requests
 
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
@@ -14,14 +15,17 @@ app.config["SECRET_KEY"] = os.environ["secretpassword"]
 
 
 @app.before_request
-def make_session_permanent():
+def Xtra():
     if "fcb272c6-079c-4ce5-aa9c-7db84e71071b.id.repl.co" in request.url:
         return redirect("https://scratchbrowser.28klotlucas.repl.co/")
     session.permanent = True
 
+    if maintinance and request.args.get(
+            "bypass") != os.environ["secretpassword"]:
+        abort(503)
+
 
 def extract_hashtags(text):
-
     # the regular expression
     regex = "#(\w+)"
 
@@ -35,13 +39,28 @@ def sendreq(url):
     return urllib.request.urlopen(url).read()
 
 
+def followernum(user):
+    followers = int(
+        re.search(
+            r'Followers \(([0-9]+)\)',
+            requests.get(
+                f'https://scratch.mit.edu/users/{user}/followers').text,
+            re.I).group(1))
+    return f'{followers} on [scratch](https://scratch.mit.edu/users/{user}/followers)'
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return redirect("/static/favicon.ico")
+
+
 @app.route('/')
-def hello_world():
+def index():
     return render_template("home.html")
 
 
 @app.route("/projects/search/")
-def projectsearchmenu():
+def search():
     if request.args.get("q"):
         if request.args.get("page"):
             results = json.loads(
@@ -103,7 +122,7 @@ def remixes(projid):
 
 
 @app.route("/followers/<name>/")
-def followercount(name):
+def followers(name):
     try:
         sendreq("https://api.scratch.mit.edu/users/" + name + "/followers/")
     except urllib.error.HTTPError:
@@ -120,12 +139,12 @@ def followercount(name):
 
 
 @app.route("/search/")
-def result():
+def searchredirect():
     return redirect("/projects/search/")
 
 
 @app.route("/projects/")
-def featured():
+def projects():
 
     featured = json.loads(
         sendreq("https://api.scratch.mit.edu/proxy/featured"))
@@ -208,12 +227,20 @@ def featured():
                            games=games2)
 
 
+@app.route("/projects/<projid>/spritesheet/")
+def assets(projid):
+    response = json.loads(
+        sendreq("https://projects.scratch.mit.edu/" + projid + "/"))
+    assets = []
+
+    for i in response["targets"]:
+      for i in i["costumes"]:
+        assets.append(i)
+    return render_template("assets.html", assets=assets)
+
+
 @app.route("/projects/<projid>/")
-def projectinfo(projid):
-    try:
-        sendreq("https://api.scratch.mit.edu/projects/" + projid + "/")
-    except:
-        abort(404)
+def project(projid):
     response = json.loads(
         sendreq("https://api.scratch.mit.edu/projects/" + projid + "/"))
 
@@ -259,21 +286,20 @@ def play(projid):
     return redirect("https://turbowarp.org/" + projid + "/embed")
 
 
-@app.before_request
-def check_under_maintenance():
-    if maintinance and not request.args.get("bypass") == os.environ[
-            "secretpassword"]:  # Check if a "maintenance" file exists (whatever it is empty or not)
-        abort(503)
-
-
 @app.route("/google08ced3cd04c4329e.html")
-def e():
+def googlestuff():
     return render_template("google08ced3cd04c4329e.html")
 
 
 @app.route("/projects/scratch.mit.edu/projects/<projid>/")
 def bookmarklet(projid):
-  return redirect("/projects/" + projid)
+    return redirect("/projects/" + projid)
+
+
+@app.route("/user/<username>/")
+def userprofile(username):
+    user = sendreq("https://api.scratch.mit.edu/users/" + username)
+    return user
 
 
 @app.errorhandler(503)
@@ -290,7 +316,9 @@ def error404(e):
         return "Sorry, that project is either private or it dosen't exist."
     return """<html class="js-focus-visible" data-js-focus-visible=""><head><title>404 Not Found</title>
 </head><body><h1>Not Found</h1>
-<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+<p>""" + request.url.split(
+        "http://scratchbrowser.28klotlucas.repl.co"
+    )[1] + """ was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
 </body></html>"""
 
 
