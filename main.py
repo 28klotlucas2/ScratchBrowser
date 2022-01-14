@@ -22,7 +22,7 @@ def Xtra():
 
     if maintinance and request.args.get(
             "bypass") != os.environ["secretpassword"]:
-        abort(503)
+        return abort(503)
 
 
 def extract_hashtags(text):
@@ -156,6 +156,7 @@ def projects():
         mostremixed.append({})
         mostremixed[num]["thumbnail"] = i["thumbnail_url"]
         mostremixed[num]["title"] = i["title"]
+        mostremixed[num]["creator"] = i["creator"]
         mostremixed[num]["id"] = str(i["id"])
 
     mostloved = []
@@ -164,6 +165,7 @@ def projects():
     for i in featured["community_most_loved_projects"]:
         num = num + 1
         mostloved.append({})
+        mostloved[num]["creator"] = i["creator"]
         mostloved[num]["thumbnail"] = i["thumbnail_url"]
         mostloved[num]["title"] = i["title"]
         mostloved[num]["id"] = str(i["id"])
@@ -176,6 +178,7 @@ def projects():
     for i in recent:
         num = num + 1
         recent2.append({})
+        recent2[num]["creator"] = i["author"]["username"]
         recent2[num]["thumbnail"] = i["images"]["200x200"]
         recent2[num]["title"] = i["title"]
         recent2[num]["id"] = str(i["id"])
@@ -190,6 +193,7 @@ def projects():
     for i in games:
         num = num + 1
         games2.append({})
+        games2[num]["creator"] = i["author"]["username"]
         games2[num]["thumbnail"] = i["images"]["200x200"]
         games2[num]["title"] = i["title"]
         games2[num]["id"] = str(i["id"])
@@ -234,10 +238,10 @@ def assets(projid):
     assets = []
 
     for i in response["targets"]:
-      costname = i["name"]
-      for i in i["costumes"]:
-        i["name"] = costname + ": " + i["name"]
-        assets.append(i)
+        costname = i["name"]
+        for i in i["costumes"]:
+            i["name"] = costname + ": " + i["name"]
+            assets.append(i)
     return render_template("assets.html", assets=assets)
 
 
@@ -245,6 +249,13 @@ def assets(projid):
 def project(projid):
     response = json.loads(
         sendreq("https://api.scratch.mit.edu/projects/" + projid + "/"))
+
+    engine = 3.0
+
+    try:
+      sendreq("https://projects.scratch.mit.edu/" + projid + "/")
+    except:
+      engine = 2.0
 
     stats = {}
     stats["views"] = str(response["stats"]["views"])
@@ -278,14 +289,22 @@ def project(projid):
         return render_template("project.html",
                                project=response,
                                stats=stats,
-                               projid=projid)
+                               projid=projid, engine=engine)
     else:
         return "To respect the privacy of others. We will not show info about unshared projects. I don't even know how you got this message. Because scratch api won't even grab info about unshared projects. So you should get an error 404 message. Scratch's servers or my servers are probably just broken."
 
 
 @app.route("/projects/<projid>/play/")
 def play(projid):
-    return redirect("https://turbowarp.org/" + projid + "/embed")
+    return redirect(
+        "https://turbowarp.org/" + projid +
+        "/embed?interpolate&hqpen")
+
+
+@app.route("/projects/<projid>/play/V2.0/")
+def playalt(projid):
+    return redirect(
+        "https://forkphorus.github.io/#" + projid)
 
 
 @app.route("/google08ced3cd04c4329e.html")
@@ -298,25 +317,32 @@ def bookmarklet(projid):
     return redirect("/projects/" + projid)
 
 
-@app.route("/user/<username>/")
+@app.route("/users/<username>/")
 def userprofile(username):
-    user = sendreq("https://api.scratch.mit.edu/users/" + username)
-    return user
+    user = json.loads(sendreq("https://api.scratch.mit.edu/users/" + username))
+    return render_template("user.html", user=user)
 
+@app.route("/users/")
+def users():
+    users = json.loads(sendreq("https://scratchdb.lefty.one/v3/user/rank/global/followers"))
+    response = []
+    print(users)
+    for i in users:
+      print(i["username"])
+    return response
 
 @app.errorhandler(503)
 def error503(e):
-    return "I'm doing koder stuff wait till I dun is."
+    return error404pg()
 
 
 @app.errorhandler(404)
 def error404(e):
-    if request.url.startswith(
-            "http://scratchbrowser.28klotlucas.repl.co/projects/"
-    ) or request.url.startswith(
-            "https://scratchbrowser.28klotlucas.repl.co/projects/"):
-        return "Sorry, that project is either private or it dosen't exist."
-    return """<html class="js-focus-visible" data-js-focus-visible=""><head><title>404 Not Found</title>
+    return error404pg()
+
+
+def error404pg():
+  return """<html class="js-focus-visible" data-js-focus-visible=""><head><title>404 Not Found</title>
 </head><body><h1>Not Found</h1>
 <p>""" + request.url.split(
         "http://scratchbrowser.28klotlucas.repl.co"
@@ -326,10 +352,7 @@ def error404(e):
 
 @app.errorhandler(500)
 def error500(e):
-    return """<html class="js-focus-visible" data-js-focus-visible=""><head><title>404 Not Found</title>
-</head><body><h1>Not Found</h1>
-<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
-</body></html>"""
+    return error404pg()
 
 
 app.run(host='0.0.0.0', port=8080)

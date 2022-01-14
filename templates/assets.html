@@ -45,7 +45,7 @@
 	<a href="https://scratchbrowser.28klotlucas.repl.co/" style="font-size:20px">Home<br><br></a>
 	<h1>Spritesheet</h1>
   {% for i in assets %}
-  <a href="https://assets.scratch.mit.edu/{{i["assetId"] + "." + i["dataFormat"]}}">
+  <a href="https://assets.scratch.mit.edu/{{i["assetId"]}}.{{i["dataFormat"]}}">
   <div class="content_img">
   <img src="https://assets.scratch.mit.edu/{{i["assetId"] + "." + i["dataFormat"]}}" alt="{{i["name"]}}" width="225px" height="165px"</img>
    </a>
