@@ -253,9 +253,9 @@ def project(projid):
     engine = 3.0
 
     try:
-      sendreq("https://projects.scratch.mit.edu/" + projid + "/")
+        sendreq("https://projects.scratch.mit.edu/" + projid + "/")
     except:
-      engine = 2.0
+        engine = 2.0
 
     stats = {}
     stats["views"] = str(response["stats"]["views"])
@@ -289,22 +289,21 @@ def project(projid):
         return render_template("project.html",
                                project=response,
                                stats=stats,
-                               projid=projid, engine=engine)
+                               projid=projid,
+                               engine=engine)
     else:
         return "To respect the privacy of others. We will not show info about unshared projects. I don't even know how you got this message. Because scratch api won't even grab info about unshared projects. So you should get an error 404 message. Scratch's servers or my servers are probably just broken."
 
 
 @app.route("/projects/<projid>/play/")
 def play(projid):
-    return redirect(
-        "https://turbowarp.org/" + projid +
-        "/embed?interpolate&hqpen")
+    return redirect("https://turbowarp.org/" + projid +
+                    "/embed?interpolate&hqpen")
 
 
 @app.route("/projects/<projid>/play/V2.0/")
 def playalt(projid):
-    return redirect(
-        "https://forkphorus.github.io/#" + projid)
+    return redirect("https://forkphorus.github.io/#" + projid)
 
 
 @app.route("/google08ced3cd04c4329e.html")
@@ -322,14 +321,45 @@ def userprofile(username):
     user = json.loads(sendreq("https://api.scratch.mit.edu/users/" + username))
     return render_template("user.html", user=user)
 
+
+@app.route("/users/<username>/projects/")
+def userprojects(username):
+    if not request.args.get("page"):
+        return redirect("/users/" + username + "/projects?page=1")
+    else:
+        results = json.loads(
+            sendreq("https://api.scratch.mit.edu/users/" + username +
+                    "/projects?offset=" +
+                    str((int(request.args.get("page")) - 1) * 18)))
+
+    results2 = []
+    num = 0
+    for i in results:
+        num = num + 1
+        if not num > 18:
+            results2.append(i)
+
+    if num == 0:
+        return redirect("/users/" + username + "/projects?page=" +
+                        str(int(request.args.get("page")) - 1))
+
+    return render_template("searchd.html",
+                           results=results2,
+                           search=False,
+                           page=int(request.args.get("page")),
+                           user=username)
+
+
 @app.route("/users/")
 def users():
-    users = json.loads(sendreq("https://scratchdb.lefty.one/v3/user/rank/global/followers"))
+    users = json.loads(
+        sendreq("https://scratchdb.lefty.one/v3/user/rank/global/followers"))
     response = []
     print(users)
     for i in users:
-      print(i["username"])
+        print(i["username"])
     return response
+
 
 @app.errorhandler(503)
 def error503(e):
@@ -342,7 +372,7 @@ def error404(e):
 
 
 def error404pg():
-  return """<html class="js-focus-visible" data-js-focus-visible=""><head><title>404 Not Found</title>
+    return """<html class="js-focus-visible" data-js-focus-visible=""><head><title>404 Not Found</title>
 </head><body><h1>Not Found</h1>
 <p>""" + request.url.split(
         "http://scratchbrowser.28klotlucas.repl.co"

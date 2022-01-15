@@ -52,7 +52,7 @@
 	<title>Search | ScratchBrowser</title>
 </head>
 <a href="https://scratchbrowser.28klotlucas.repl.co/" style="font-size:20px">Home<br><br></a>
-<h4 style="font-size: 20px;">Results:{% if not search %}
+<h4 style="font-size: 20px;">Results:{% if not search and projid %}
 <a style="text-align: center;" href="https://scratchbrowser.28klotlucas.repl.co/projects/{{projid}}/remixes?page={{page + 1}}"
 			 class="button">Next
 			</a>
@@ -61,13 +61,24 @@
 			 class="button">Last
 			</a>
 {% endif %}
-{% else %}
+{% endif %}
+{% if search %}
 <a style="text-align: center;" href="https://scratchbrowser.28klotlucas.repl.co/projects/search?page={{page + 1}}&q={{q}}"
 			 class="button">Next
 			</a>
 {% if page != 1 %}
 <a style="text-align: center;" href="https://scratchbrowser.28klotlucas.repl.co/projects/search?page={{page - 1}}&q={{q}}"
 			 class="button">Last</a>
+{% endif %}
+{% endif %}
+{% if user %}
+<a style="text-align: center;" href="https://scratchbrowser.28klotlucas.repl.co/users/{{user}}/projects?page={{page + 1}}"
+			 class="button">Next
+			</a>
+{% if page != 1 %}
+<a style="text-align: center;" href="https://scratchbrowser.28klotlucas.repl.co/users/{{user}}/projects?page={{page - 1}}"
+			 class="button">Last
+			</a>
 {% endif %}
 {% endif %}</h4>
 <div class="row">
