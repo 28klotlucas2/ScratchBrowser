@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import requests
+from scratchclient import ScratchSession
 
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
@@ -35,8 +36,18 @@ def extract_hashtags(text):
     return hashtag_list
 
 
+def extract_mentions(text):
+    # the regular expression
+    regex = "@(\w+)"
+
+    # extracting the mentions
+    hashtag_list = re.findall(regex, text)
+
+    return hashtag_list
+
+
 def sendreq(url):
-    return urllib.request.urlopen(url).read()
+    return requests.get(url).text
 
 
 def followernum(user):
@@ -247,15 +258,25 @@ def assets(projid):
 
 @app.route("/projects/<projid>/")
 def project(projid):
-    response = json.loads(
-        sendreq("https://api.scratch.mit.edu/projects/" + projid + "/"))
+    try:
+        response = json.loads(
+            sendreq("https://api.scratch.mit.edu/projects/" + projid + "/"))
+    except:
+        try:
+            sendreq("https://projects.scratch.mit.edu/" + projid + "/")
+        except:
+            return "Something server side is broken, or the project dosent exist."
+        return "To respect the privacy of others. We will not show info about unshared projects."
 
     engine = 3.0
 
     try:
-        sendreq("https://projects.scratch.mit.edu/" + projid + "/")
+        if json.loads(
+                sendreq("https://projects.scratch.mit.edu/" + projid +
+                        "/"))["code"] == "NotFound":
+            engine = 2.0
     except:
-        engine = 2.0
+        "a"
 
     stats = {}
     stats["views"] = str(response["stats"]["views"])
@@ -273,17 +294,31 @@ def project(projid):
 
     response["tags"] = []
 
+    response["mentions"] = []
+
     for i in extract_hashtags(response["title"]):
         if not i in response["tags"]:
             response["tags"].append(i)
+
+    for i in extract_mentions(response["title"]):
+        if not i in response["mentions"]:
+            response["mentions"].append(i)
 
     for i in extract_hashtags(response["description"]):
         if not i in response["tags"]:
             response["tags"].append(i)
 
+    for i in extract_mentions(response["description"]):
+        if not i in response["mentions"]:
+            response["mentions"].append(i)
+
     for i in extract_hashtags(response["instructions"]):
         if not i in response["tags"]:
             response["tags"].append(i)
+
+    for i in extract_mentions(response["instructions"]):
+        if not i in response["mentions"]:
+            response["mentions"].append(i)
 
     if response["public"]:
         return render_template("project.html",
@@ -291,8 +326,6 @@ def project(projid):
                                stats=stats,
                                projid=projid,
                                engine=engine)
-    else:
-        return "To respect the privacy of others. We will not show info about unshared projects. I don't even know how you got this message. Because scratch api won't even grab info about unshared projects. So you should get an error 404 message. Scratch's servers or my servers are probably just broken."
 
 
 @app.route("/projects/<projid>/play/")
@@ -319,6 +352,16 @@ def bookmarklet(projid):
 @app.route("/users/<username>/")
 def userprofile(username):
     user = json.loads(sendreq("https://api.scratch.mit.edu/users/" + username))
+    user["mentions"] = []
+
+    for i in extract_mentions(user["profile"]["bio"]):
+        if not i in user["mentions"]:
+            user["mentions"].append(i)
+
+    for i in extract_mentions(user["profile"]["status"]):
+        if not i in user["mentions"]:
+            user["mentions"].append(i)
+
     return render_template("user.html", user=user)
 
 
@@ -361,28 +404,25 @@ def users():
     return response
 
 
-@app.errorhandler(503)
-def error503(e):
-    return error404pg()
+@app.route("/account/")
+def accountpage():
+    try:
+        ScratchSession(session["username"], session["password"])
+    except:
+        return redirect("/account/login/")
 
 
-@app.errorhandler(404)
-def error404(e):
-    return error404pg()
+@app.route("/account/login/")
+def accountlogin():
+    return ""
 
 
-def error404pg():
-    return """<html class="js-focus-visible" data-js-focus-visible=""><head><title>404 Not Found</title>
-</head><body><h1>Not Found</h1>
-<p>""" + request.url.split(
-        "http://scratchbrowser.28klotlucas.repl.co"
-    )[1] + """ was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
-</body></html>"""
+@app.route("/stats/")
+def leaderboard():
+    leaderboard = json.loads(
+        sendreq("https://scratchdb.lefty.one/v3/user/rank/global/followers/"))
 
-
-@app.errorhandler(500)
-def error500(e):
-    return error404pg()
+    return render_template("leaderboard.html", users=leaderboard)
 
 
 app.run(host='0.0.0.0', port=8080)

@@ -10,6 +10,7 @@ Flask = "^2.0.2"
 dominate = "^2.6.0"
 Flask-Bootstrap = "^3.3.7"
 flask-nav = "^0.6"
+scratchclient = "^0.5.2"
 
 [tool.poetry.dev-dependencies]
 

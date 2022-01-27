@@ -1,0 +1,17 @@
+<html>
+
+<head>
+  <title>Scratch Leaderboard Even Though Scratch Isn't A Competition | ScratchBrowser</title>
+	<link rel="stylesheet" href="https://scratch.mit.edu/common.css" </link>
+	<link rel="stylesheet" href="/static/a.css" </link>
+</head>
+
+<body>
+  {% for i in users %}
+  <div style="text-align: center;">
+    <a href="/users/{{i["username"]}}">{{i["username"]}}</a><br>
+    <img src="https://uploads.scratch.mit.edu/get_image/user/{{i["id"]}}_60x60.png" width="55" height="55">
+    <p>{{i["statistics"]["followers"]}} followers</p>
+  </div>
+  {% endfor %}
+</html>
